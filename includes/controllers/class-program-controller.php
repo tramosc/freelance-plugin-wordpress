@@ -13,11 +13,27 @@ class Program_Controller {
     // Crear un programa
     public function create_program() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Obtener los valores del formulario
             $program_name = sanitize_text_field($_POST['program_name']);
             $area_id = isset($_POST['area_id']) ? intval($_POST['area_id']) : 0;
             $program_image_url = '';
             $docentes = isset($_POST['docentes']) ? array_map('intval', $_POST['docentes']) : [];
-
+    
+            // Aquí se agregan las demás variables necesarias
+            $tipo_especializacion = isset($_POST['tipo_especializacion']) ? sanitize_text_field($_POST['tipo_especializacion']) : '';
+            $fecha_inicio = isset($_POST['fecha_inicio']) ? sanitize_text_field($_POST['fecha_inicio']) : '';
+            $fecha_fin = isset($_POST['fecha_fin']) ? sanitize_text_field($_POST['fecha_fin']) : '';
+            $link_video = isset($_POST['link_video']) ? esc_url_raw($_POST['link_video']) : '';
+            $descripcion = isset($_POST['descripcion']) ? wp_kses_post($_POST['descripcion']) : '';
+            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_kses_post($_POST['que_aprenderas']) : '';
+            $nro_modulos = isset($_POST['nro_modulos']) ? intval($_POST['nro_modulos']) : 0;
+            $nro_horas = isset($_POST['nro_horas']) ? sanitize_text_field($_POST['nro_horas']) : '';
+            $malla_curricular = isset($_POST['malla_curricular']) ? wp_kses_post($_POST['malla_curricular']) : '';
+            $tipo_certificacion = isset($_POST['tipo_certificacion']) ? sanitize_text_field($_POST['tipo_certificacion']) : '';
+            $hora_inicio = isset($_POST['hora_inicio']) ? sanitize_text_field($_POST['hora_inicio']) : '';
+            $hora_fin = isset($_POST['hora_fin']) ? sanitize_text_field($_POST['hora_fin']) : '';
+            $precio = isset($_POST['precio']) ? sanitize_text_field($_POST['precio']) : '';
+    
             // Validación de los datos
             if (empty($program_name)) {
                 add_action('admin_notices', function() {
@@ -25,42 +41,30 @@ class Program_Controller {
                 });
                 return;
             }
-
+    
             // Manejo de la imagen
             if (isset($_FILES['program_image']) && $_FILES['program_image']['error'] === UPLOAD_ERR_OK) {
                 $program_image_url = $this->handle_image_upload($_FILES['program_image']);
             }
-
-            // Insertar programa en la base de datos
-            global $wpdb;
-            $wpdb->insert(
-                $wpdb->prefix . 'programs',
-                array(
-                    'name' => $program_name,
-                    'slug' => sanitize_title($program_name),
-                    'area_id' => $area_id,
-                    'image_url' => $program_image_url,
-                )
-            );
-
-            $program_id = $wpdb->insert_id;
-
-            // Relacionar docentes
-            $this->save_program_docentes($program_id, $docentes);
-
+    
+            // Insertar programa usando el modelo
+            $program_slug = sanitize_title($program_name);
+            $this->model->save_program($program_name, $program_slug, $area_id, $program_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
+    
             // Redirigir después de guardar el programa
             wp_redirect(admin_url('admin.php?page=mentory-list-programs'));
             exit;
         }
-
+    
         // Obtener áreas y docentes para el formulario
         global $wpdb;
         $areas = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}areas");
         $docentes = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}docentes");
-
+    
         // Incluir vista de formulario
         include(plugin_dir_path(__FILE__) . '../views/programs/create-program.php');
     }
+    
 
     // Editar un programa
     public function edit_program($program_id) {
@@ -76,6 +80,7 @@ class Program_Controller {
     
             // Si no se seleccionó una nueva imagen, mantener la imagen actual
             $program_image_url = $this->handle_image_upload($_FILES['program_image'], $program_id);
+
             if (empty($program_image_url)) {
                 // Si no se sube una nueva imagen, mantener la imagen actual
                 global $wpdb;
@@ -84,22 +89,24 @@ class Program_Controller {
             }
     
             $docentes = isset($_POST['docentes']) ? array_map('intval', $_POST['docentes']) : [];
+
+            $tipo_especializacion = isset($_POST['tipo_especializacion']) ? sanitize_text_field($_POST['tipo_especializacion']) : '';
+            $fecha_inicio = isset($_POST['fecha_inicio']) ? sanitize_text_field($_POST['fecha_inicio']) : '';
+            $fecha_fin = isset($_POST['fecha_fin']) ? sanitize_text_field($_POST['fecha_fin']) : '';
+            $link_video = isset($_POST['link_video']) ? esc_url_raw($_POST['link_video']) : '';
+            $descripcion = isset($_POST['descripcion']) ? wp_kses_post($_POST['descripcion']) : '';
+            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_kses_post($_POST['que_aprenderas']) : '';
+            $nro_modulos = isset($_POST['nro_modulos']) ? intval($_POST['nro_modulos']) : 0;
+            $nro_horas = isset($_POST['nro_horas']) ? sanitize_text_field($_POST['nro_horas']) : '';
+            $malla_curricular = isset($_POST['malla_curricular']) ? wp_kses_post($_POST['malla_curricular']) : '';
+            $tipo_certificacion = isset($_POST['tipo_certificacion']) ? sanitize_text_field($_POST['tipo_certificacion']) : '';
+            $hora_inicio = isset($_POST['hora_inicio']) ? sanitize_text_field($_POST['hora_inicio']) : '';
+            $hora_fin = isset($_POST['hora_fin']) ? sanitize_text_field($_POST['hora_fin']) : '';
+            $precio = isset($_POST['precio']) ? sanitize_text_field($_POST['precio']) : '';
     
-            // Actualizar programa en la base de datos
-            global $wpdb;
-            $wpdb->update(
-                $wpdb->prefix . 'programs',
-                array(
-                    'name' => $program_name,
-                    'slug' => sanitize_title($program_name),
-                    'area_id' => $area_id,
-                    'image_url' => $program_image_url,
-                ),
-                array('id' => $program_id)
-            );
-    
-            // Actualizar relación con docentes
-            $this->save_program_docentes($program_id, $docentes);
+            // Actualizar programa usando el modelo
+            $program_slug = sanitize_title($program_name);
+            $this->model->update_program($program_id, $program_name, $program_slug, $area_id, $program_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
     
             // Redirigir después de actualizar
             wp_redirect(admin_url('admin.php?page=mentory-list-programs'));
@@ -122,7 +129,6 @@ class Program_Controller {
         include(plugin_dir_path(__FILE__) . '../views/programs/edit-program.php');
     }
     
-
     // Guardar relación entre programa y docentes
     private function save_program_docentes($program_id, $docentes) {
         global $wpdb;
@@ -188,4 +194,3 @@ class Program_Controller {
         include(plugin_dir_path(__FILE__) . '../views/programs/list-programs.php');
     }
 }
-?>
