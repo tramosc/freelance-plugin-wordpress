@@ -55,7 +55,8 @@ class Docente_Controller {
             'apellidos' => sanitize_text_field($data['apellidos']),
             'cargo' => sanitize_text_field($data['cargo']),
             'foto_url' => esc_url_raw($foto_url),
-            'descripcion' => sanitize_textarea_field($data['descripcion'])
+            'descripcion' => sanitize_textarea_field($data['descripcion']),
+            'url_perfil' => esc_url_raw($data['url_perfil'])
         ));
 
         echo '<div class="notice notice-success"><p>Docente creado con éxito.</p></div>';
@@ -79,7 +80,8 @@ class Docente_Controller {
             'apellidos' => sanitize_text_field($data['apellidos']),
             'cargo' => sanitize_text_field($data['cargo']),
             'foto_url' => esc_url_raw($foto_url),
-            'descripcion' => sanitize_textarea_field($data['descripcion'])
+            'descripcion' => sanitize_textarea_field($data['descripcion']),
+            'url_perfil' => esc_url_raw($data['url_perfil']),
         ), array('id' => $id));
     }
     // Método para manejar la carga de imágenes
@@ -109,5 +111,7 @@ class Docente_Controller {
         global $wpdb;
         $table_name = $wpdb->prefix . 'docentes';
         $wpdb->delete($table_name, array('id' => $id));
+        wp_redirect(admin_url('admin.php?page=mentory-list-docentes'));
+        exit;
     }
 }

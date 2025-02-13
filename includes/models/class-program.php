@@ -32,7 +32,7 @@ class Program {
                 'hora_fin' => $hora_fin,
                 'precio' => $precio,
             ),
-            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s')
+            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
         );
 
         // Obtener el ID del programa recién insertado
@@ -102,7 +102,7 @@ class Program {
                 'precio' => $precio,
             ),
             array('id' => $id),
-            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s'),
+            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'),
             array('%d')
         );
 

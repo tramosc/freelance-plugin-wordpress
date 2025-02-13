@@ -77,13 +77,23 @@ class Masterclass_Controller {
                     $uploaded_file_url = $upload['url'];
                 }
             } else {
-                // Si no se subió nueva imagen, mantener la existente en la BD
+                // Mantener la imagen existente si no se subió una nueva
                 $uploaded_file_url = sanitize_text_field($_POST['existing_img_masterclass']);
             }
     
-            // Verificar si el usuario ha proporcionado un slug nuevo o usar el generado automáticamente
-            $slug = !empty($_POST['slugMasterclass']) ? sanitize_title($_POST['slugMasterclass']) : sanitize_title($_POST['nombreMasterclass']);
-            $slug = $this->generate_unique_slug($slug);
+            // Obtener el slug actual de la base de datos
+            $current_masterclass = $this->model->get_masterclass($id);
+            $current_slug = $current_masterclass->slugMasterclass;
+    
+            // Verificar si el usuario ingresó un nuevo slug o si el nombre cambió
+            $new_slug = !empty($_POST['slugMasterclass']) ? sanitize_title($_POST['slugMasterclass']) : sanitize_title($_POST['nombreMasterclass']);
+    
+            // Solo generar un nuevo slug si es diferente al existente
+            if ($new_slug !== $current_slug) {
+                $slug = $this->generate_unique_slug($new_slug);
+            } else {
+                $slug = $current_slug; // Mantener el mismo slug si no ha cambiado
+            }
     
             $data = array(
                 'nombreMasterclass' => sanitize_text_field($_POST['nombreMasterclass']),
@@ -97,7 +107,7 @@ class Masterclass_Controller {
     
             $this->model->update_masterclass($id, $data);
     
-            // Actualizar los docentes asociados a la masterclass en la tabla de relación
+            // Actualizar los docentes asociados
             if (isset($_POST['docentes'])) {
                 $docentes_ids = array_map('intval', $_POST['docentes']);
                 $this->model->update_masterclass_docentes($id, $docentes_ids);
@@ -109,15 +119,12 @@ class Masterclass_Controller {
     
         // Obtener los datos actuales de la masterclass
         $masterclass = $this->model->get_masterclass($id);
-    
-        // Obtener todos los docentes disponibles
         $docentes = $this->model->get_all_docentes();
-    
-        // Obtener los docentes actualmente asociados a esta masterclass
         $selected_docentes = $this->model->get_docentes_by_masterclass($id);
     
         include(plugin_dir_path(__FILE__) . '../views/masterclass/edit-masterclass.php');
     }
+    
     
 
     public function delete_masterclass($id) {

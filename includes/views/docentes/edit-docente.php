@@ -1,5 +1,6 @@
 <div class="wrap">
     <h1 class="mb-4">Editar Docente</h1>
+    <a href="<?php echo admin_url('admin.php?page=mentory-list-docentes'); ?>" class="page-title-action">Regresar al Listado</a>
     <form method="post" enctype="multipart/form-data">
         <?php wp_nonce_field('editar_docente', 'docente_nonce'); ?>
 
@@ -16,6 +17,11 @@
         <div class="mb-3">
             <label for="cargo" class="form-label">Cargo:</label>
             <input type="text" class="form-control" name="cargo" id="cargo" value="<?php echo esc_attr($docente->cargo); ?>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="url_perfil" class="form-label">Link del Perfil:</label>
+            <input type="text" class="form-control" name="url_perfil" id="url_perfil" value="<?php echo esc_attr($docente->url_perfil); ?>" required>
         </div>
 
         <div class="mb-3">

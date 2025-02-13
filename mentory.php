@@ -40,7 +40,7 @@ function mentory_activate() {
         que_aprenderas TEXT DEFAULT NULL,
         nro_modulos INT DEFAULT 0,
         nro_horas VARCHAR(255) DEFAULT NULL,
-        malla_curricular VARCHAR(255) DEFAULT NULL,
+        malla_curricular TEXT DEFAULT NULL,
         tipo_certificacion VARCHAR(255) DEFAULT NULL,
         hora_inicio TIME DEFAULT NULL,
         hora_fin TIME DEFAULT NULL,
@@ -65,6 +65,7 @@ function mentory_activate() {
         cargo tinytext NOT NULL,
         foto_url varchar(255) DEFAULT '' NOT NULL,
         descripcion text NOT NULL,
+        url_perfil VARCHAR(255) DEFAULT NULL,
         PRIMARY KEY (id)
     ) $charset_collate;";
 
@@ -144,14 +145,14 @@ function mentory_plugin_menu() {
 
 
     // Submenú de Programas
-    add_submenu_page('mentory-plugin', 'Crear Programa', 'Crear Programa', 'manage_options', 'mentory-create-program', 'mentory_create_program');
     add_submenu_page('mentory-plugin', 'Lista de Programas', 'Lista de Programas', 'manage_options', 'mentory-list-programs', 'mentory_list_programs');
+    add_submenu_page(null, 'Crear Programa', 'Crear Programa', 'manage_options', 'mentory-create-program', 'mentory_create_program');
     add_submenu_page(null, 'Editar Programa', 'Editar Programa', 'manage_options', 'mentory-edit-program', 'mentory_edit_program');
     add_submenu_page(null, 'Eliminar Programa', 'Eliminar Programa', 'manage_options', 'mentory-delete-program', 'mentory_delete_program');
 
     // Submenú de Áreas
-    add_submenu_page('mentory-plugin', 'Crear Área', 'Crear Área', 'manage_options', 'mentory-create-area', 'mentory_create_area');
     add_submenu_page('mentory-plugin', 'Lista de Áreas', 'Lista de Áreas', 'manage_options', 'mentory-list-areas', 'mentory_list_areas');
+    add_submenu_page(null, 'Crear Área', 'Crear Área', 'manage_options', 'mentory-create-area', 'mentory_create_area');
     add_submenu_page(null, 'Editar Área', 'Editar Área', 'manage_options', 'mentory-edit-area', 'mentory_edit_area');
     add_submenu_page(null, 'Eliminar Área', 'Eliminar Área', 'manage_options', 'mentory-delete-area', 'mentory_delete_area');
 
@@ -162,8 +163,8 @@ function mentory_plugin_menu() {
     add_submenu_page(null, 'Eliminar Docente', 'Eliminar Docente', 'manage_options', 'delete_docente', 'mentory_delete_docente');
 
     // Submenú de Masterclass
-    add_submenu_page('mentory-plugin', 'Crear Masterclass', 'Crear Masterclass', 'manage_options', 'mentory-create-masterclass', 'mentory_create_masterclass');
     add_submenu_page('mentory-plugin', 'Lista de Masterclasses', 'Lista de Masterclasses', 'manage_options', 'mentory-list-masterclass', 'mentory_list_masterclass');
+    add_submenu_page(null, 'Crear Masterclass', 'Crear Masterclass', 'manage_options', 'mentory-create-masterclass', 'mentory_create_masterclass');
     add_submenu_page(null, 'Editar Masterclass', 'Editar Masterclass', 'manage_options', 'mentory-edit-masterclass', 'mentory_edit_masterclass');
     add_submenu_page(null, 'Eliminar Masterclass', 'Eliminar Masterclass', 'manage_options', 'mentory-delete-masterclass', 'mentory_delete_masterclass');
 
@@ -319,6 +320,83 @@ function mentory_admin_page() {
 
 
 
+
+
+
+// Reescritura de URL personalizada para masterclass
+function mentory_masterclass_rewrite_rules() {
+    // Regla para mostrar todas las masterclass
+    add_rewrite_rule(
+        '^masterclass/?$',
+        'index.php?all_masterclass=true',
+        'top'
+    );
+
+    // Regla para mostrar detalles de una masterclass
+    add_rewrite_rule(
+        '^masterclass/([^/]+)/?$',
+        'index.php?masterclass_slug=$matches[1]',
+        'top'
+    );
+}
+add_action('init', 'mentory_masterclass_rewrite_rules');
+
+function mentory_masterclass_query_vars($vars) {
+    $vars[] = 'all_masterclass';
+    $vars[] = 'masterclass_slug';
+    return $vars;
+}
+add_filter('query_vars', 'mentory_masterclass_query_vars');
+
+// Plantilla para Masterclass
+function mentory_masterclass_template_include($template) {
+    $all_masterclass = get_query_var('all_masterclass');
+    $masterclass_slug = get_query_var('masterclass_slug');
+    
+    error_log("Valor de masterclass_slug: " . $masterclass_slug); // Para verificar el slug
+
+    if ($all_masterclass) {
+        $new_template = locate_template('masterclass/index-masterclass.php');
+        if (!empty($new_template)) {
+            return $new_template;
+        }
+    }
+
+    if ($masterclass_slug) {
+        $masterclass = mentory_get_masterclass_by_slug($masterclass_slug);
+        
+        if ($masterclass) {
+            $new_template = locate_template('masterclass/detail-masterclass.php');
+            if (!empty($new_template)) {
+                return $new_template;
+            }
+        }
+    }
+
+    return $template;
+}
+add_filter('template_include', 'mentory_masterclass_template_include');
+
+// Función para obtener la masterclass por slug
+function mentory_get_masterclass_by_slug($slug) {
+    global $wpdb;
+    $query = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}masterclass WHERE slugMasterclass = %s", $slug);
+    $masterclass = $wpdb->get_row($query);
+
+    error_log("Masterclass obtenida: " . print_r($masterclass, true)); // Depuración
+
+    return $masterclass;
+}
+
+// Función para vaciar las reglas de reescritura
+function mentory_flush_rewrite_rules() {
+    mentory_masterclass_rewrite_rules();
+    flush_rewrite_rules();
+}
+add_action('init', 'mentory_flush_rewrite_rules');
+
+
+
 // Reescritura de URL personalizada
 function mentory_rewrite_rules() {
     add_rewrite_rule(
@@ -349,6 +427,8 @@ function mentory_template_redirect() {
     $area_slug = get_query_var('area_slug');
     $program_slug = get_query_var('program_slug');
     $all_programas = get_query_var('all_programas');
+
+    error_log("Valor de program_slug: " . $program_slug); // Para verificar el slug 
 
 
     if ($all_programas) {
@@ -455,77 +535,3 @@ function mentory_delete_masterclass() {
 
 
 
-
-
-
-// Reescritura de URL personalizada para masterclass
-function mentory_masterclass_rewrite_rules() {
-    // Regla para mostrar todas las masterclass
-    add_rewrite_rule(
-        '^masterclass/?$',
-        'index.php?all_masterclass=true',
-        'top'
-    );
-
-    // Regla para mostrar detalles de una masterclass
-    add_rewrite_rule(
-        '^masterclass/([^/]+)/?$',
-        'index.php?masterclass_slug=$matches[1]',
-        'top'
-    );
-}
-add_action('init', 'mentory_masterclass_rewrite_rules');
-
-function mentory_masterclass_query_vars($vars) {
-    $vars[] = 'all_masterclass';
-    $vars[] = 'masterclass_slug';
-    return $vars;
-}
-add_filter('query_vars', 'mentory_masterclass_query_vars');
-
-// Plantilla para Masterclass
-function mentory_masterclass_template_include($template) {
-    $all_masterclass = get_query_var('all_masterclass');
-    $masterclass_slug = get_query_var('masterclass_slug');
-    
-    error_log("Valor de masterclass_slug: " . $masterclass_slug); // Para verificar el slug
-
-    if ($all_masterclass) {
-        $new_template = locate_template('masterclass/index-masterclass.php');
-        if (!empty($new_template)) {
-            return $new_template;
-        }
-    }
-
-    if ($masterclass_slug) {
-        $masterclass = mentory_get_masterclass_by_slug($masterclass_slug);
-        var_dump($masterclass);
-        if ($masterclass) {
-            $new_template = locate_template('masterclass/detail-masterclass.php');
-            if (!empty($new_template)) {
-                return $new_template;
-            }
-        }
-    }
-
-    return $template;
-}
-add_filter('template_include', 'mentory_masterclass_template_include');
-
-// Función para obtener la masterclass por slug
-function mentory_get_masterclass_by_slug($slug) {
-    global $wpdb;
-    $query = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}masterclass WHERE slugMasterclass = %s", $slug);
-    $masterclass = $wpdb->get_row($query);
-
-    error_log("Masterclass obtenida: " . print_r($masterclass, true)); // Depuración
-
-    return $masterclass;
-}
-
-// Función para vaciar las reglas de reescritura
-function mentory_flush_rewrite_rules() {
-    mentory_masterclass_rewrite_rules();
-    flush_rewrite_rules();
-}
-add_action('init', 'mentory_flush_rewrite_rules');

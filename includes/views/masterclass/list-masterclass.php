@@ -1,6 +1,10 @@
 <!-- File: includes/views/masterclass/list-masterclass.php -->
 
 <h1>Lista de Masterclasses</h1>
+<div class="wrap">
+    <a href="<?php echo admin_url('admin.php?page=mentory-create-masterclass'); ?>" class="page-title-action">Agregar Nuevo Masterclass</a>
+</div>
+
 <table class="widefat fixed" cellspacing="0">
     <thead>
         <tr>

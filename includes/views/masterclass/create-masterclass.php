@@ -12,6 +12,9 @@ $areas = mentory_get_all_areas();
 
 <div class="container mt-5">
     <h2 class="mb-4">Crear Masterclass</h2>
+    <div class="wrap">
+        <a href="<?php echo admin_url('admin.php?page=mentory-list-masterclass'); ?>" class="page-title-action">Regresar al Listado</a>
+    </div>
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="nombreMasterclass" class="form-label">Nombre de la Masterclass</label>

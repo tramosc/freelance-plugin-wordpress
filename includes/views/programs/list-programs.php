@@ -1,6 +1,7 @@
 <!-- includes/views/programs/list-programs.php -->
 <div class="wrap">
     <h1>Lista de Programas</h1>
+    <a href="<?php echo admin_url('admin.php?page=mentory-create-program'); ?>" class="page-title-action">Agregar Nuevo Programa</a>
     <?php if ($programs): ?>
         <table class="wp-list-table widefat fixed striped">
             <thead>

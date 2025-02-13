@@ -5,7 +5,7 @@ $areas = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}areas");
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline">Lista de Áreas</h1>
+    <h1 class="wp-heading-inline">Lista de Áreas</h1> <br>
     <a href="<?php echo admin_url('admin.php?page=mentory-create-area'); ?>" class="page-title-action">Agregar Nueva Área</a>
     
     <table class="wp-list-table widefat fixed striped posts">

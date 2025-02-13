@@ -24,8 +24,8 @@ class Program_Controller {
             $fecha_inicio = isset($_POST['fecha_inicio']) ? sanitize_text_field($_POST['fecha_inicio']) : '';
             $fecha_fin = isset($_POST['fecha_fin']) ? sanitize_text_field($_POST['fecha_fin']) : '';
             $link_video = isset($_POST['link_video']) ? esc_url_raw($_POST['link_video']) : '';
-            $descripcion = isset($_POST['descripcion']) ? wp_kses_post($_POST['descripcion']) : '';
-            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_kses_post($_POST['que_aprenderas']) : '';
+            $descripcion = isset($_POST['descripcion']) ? wp_unslash(wp_kses_post($_POST['descripcion'])) : '';
+            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_unslash(wp_kses_post($_POST['que_aprenderas'])) : '';
             $nro_modulos = isset($_POST['nro_modulos']) ? intval($_POST['nro_modulos']) : 0;
             $nro_horas = isset($_POST['nro_horas']) ? sanitize_text_field($_POST['nro_horas']) : '';
             $malla_curricular = isset($_POST['malla_curricular']) ? wp_kses_post($_POST['malla_curricular']) : '';
@@ -94,8 +94,8 @@ class Program_Controller {
             $fecha_inicio = isset($_POST['fecha_inicio']) ? sanitize_text_field($_POST['fecha_inicio']) : '';
             $fecha_fin = isset($_POST['fecha_fin']) ? sanitize_text_field($_POST['fecha_fin']) : '';
             $link_video = isset($_POST['link_video']) ? esc_url_raw($_POST['link_video']) : '';
-            $descripcion = isset($_POST['descripcion']) ? wp_kses_post($_POST['descripcion']) : '';
-            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_kses_post($_POST['que_aprenderas']) : '';
+            $descripcion = isset($_POST['descripcion']) ? wp_unslash(wp_kses_post($_POST['descripcion'])) : '';
+            $que_aprenderas = isset($_POST['que_aprenderas']) ? wp_unslash(wp_kses_post($_POST['que_aprenderas'])) : '';
             $nro_modulos = isset($_POST['nro_modulos']) ? intval($_POST['nro_modulos']) : 0;
             $nro_horas = isset($_POST['nro_horas']) ? sanitize_text_field($_POST['nro_horas']) : '';
             $malla_curricular = isset($_POST['malla_curricular']) ? wp_kses_post($_POST['malla_curricular']) : '';
