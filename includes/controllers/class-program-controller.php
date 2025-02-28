@@ -17,6 +17,11 @@ class Program_Controller {
             $program_name = sanitize_text_field($_POST['program_name']);
             $area_id = isset($_POST['area_id']) ? intval($_POST['area_id']) : 0;
             $program_image_url = '';
+
+            //Nueva imagen 2da(se comento que necesitan esto para la parte de inicio-index)
+            $second_image_url = '';
+
+
             $docentes = isset($_POST['docentes']) ? array_map('intval', $_POST['docentes']) : [];
     
             // Aquí se agregan las demás variables necesarias
@@ -46,10 +51,16 @@ class Program_Controller {
             if (isset($_FILES['program_image']) && $_FILES['program_image']['error'] === UPLOAD_ERR_OK) {
                 $program_image_url = $this->handle_image_upload($_FILES['program_image']);
             }
+
+
+            // Manejo de la segunda imagen
+            if (isset($_FILES['second_image_url']) && $_FILES['second_image_url']['error'] === UPLOAD_ERR_OK) {
+                $second_image_url = $this->handle_image_upload($_FILES['second_image_url']);
+            }
     
             // Insertar programa usando el modelo
             $program_slug = sanitize_title($program_name);
-            $this->model->save_program($program_name, $program_slug, $area_id, $program_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
+            $this->model->save_program($program_name, $program_slug, $area_id, $program_image_url, $second_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
     
             // Redirigir después de guardar el programa
             wp_redirect(admin_url('admin.php?page=mentory-list-programs'));
@@ -81,12 +92,25 @@ class Program_Controller {
             // Si no se seleccionó una nueva imagen, mantener la imagen actual
             $program_image_url = $this->handle_image_upload($_FILES['program_image'], $program_id);
 
+            // Si no se seleccionó una nueva imagen, mantener la imagen actual segunda
+            $second_image_url = $this->handle_image_upload($_FILES['second_image_url'], $program_id);
+
             if (empty($program_image_url)) {
                 // Si no se sube una nueva imagen, mantener la imagen actual
                 global $wpdb;
                 $current_program = $wpdb->get_row($wpdb->prepare("SELECT image_url FROM {$wpdb->prefix}programs WHERE id = %d", $program_id));
                 $program_image_url = $current_program ? $current_program->image_url : '';
             }
+
+
+            if (empty($second_image_url)) {
+                // Si no se sube una nueva imagen, mantener la imagen actual
+                global $wpdb;
+                $current_programsecond = $wpdb->get_row($wpdb->prepare("SELECT second_image_url FROM {$wpdb->prefix}programs WHERE id = %d", $program_id));
+                $second_image_url = $current_programsecond ? $current_programsecond->second_image_url : '';
+            }
+
+
     
             $docentes = isset($_POST['docentes']) ? array_map('intval', $_POST['docentes']) : [];
 
@@ -106,7 +130,7 @@ class Program_Controller {
     
             // Actualizar programa usando el modelo
             $program_slug = sanitize_title($program_name);
-            $this->model->update_program($program_id, $program_name, $program_slug, $area_id, $program_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
+            $this->model->update_program($program_id, $program_name, $program_slug, $area_id, $program_image_url, $second_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes);
     
             // Redirigir después de actualizar
             wp_redirect(admin_url('admin.php?page=mentory-list-programs'));
@@ -155,31 +179,35 @@ class Program_Controller {
     }
 
     // Manejo de carga de imagen
-    private function handle_image_upload($file, $program_id = null) {
-        if (isset($file) && $file['error'] === UPLOAD_ERR_OK) {
-            $upload_overrides = array('test_form' => false);
-            $movefile = wp_handle_upload($file, $upload_overrides);
+private function handle_image_upload($file, $program_id = null, $is_second_image = false) {
+    if (isset($file) && $file['error'] === UPLOAD_ERR_OK) {
+        $upload_overrides = array('test_form' => false);
+        $movefile = wp_handle_upload($file, $upload_overrides);
 
-            if ($movefile && !isset($movefile['error'])) {
-                // Si hay un programa ID (edición), eliminar la imagen anterior
-                if ($program_id) {
-                    global $wpdb;
-                    $program = $wpdb->get_row($wpdb->prepare("SELECT image_url FROM {$wpdb->prefix}programs WHERE id = %d", $program_id));
-                    if ($program && !empty($program->image_url)) {
-                        $old_image_path = parse_url($program->image_url, PHP_URL_PATH);
-                        if (file_exists(ABSPATH . $old_image_path)) {
-                            unlink(ABSPATH . $old_image_path);
-                        }
+        if ($movefile && !isset($movefile['error'])) {
+            // Si hay un programa ID (edición), eliminar la imagen anterior
+            if ($program_id) {
+                global $wpdb;
+                
+                // Determinar qué imagen eliminar (primera o segunda)
+                $column = $is_second_image ? 'second_image_url' : 'image_url';
+                $program = $wpdb->get_row($wpdb->prepare("SELECT $column FROM {$wpdb->prefix}programs WHERE id = %d", $program_id));
+                
+                if ($program && !empty($program->$column)) {
+                    $old_image_path = ABSPATH . parse_url($program->$column, PHP_URL_PATH);
+                    if (file_exists($old_image_path)) {
+                        unlink($old_image_path);
                     }
                 }
-                return $movefile['url'];
-            } else {
-                error_log('Error al cargar la imagen: ' . $movefile['error']);
-                return ''; // En caso de error
             }
+            return $movefile['url'];
+        } else {
+            error_log('Error al cargar la imagen: ' . $movefile['error']);
+            return ''; // En caso de error
         }
-        return ''; // Si no se subió imagen
     }
+    return ''; // Si no se subió imagen
+}
 
     // Listar todos los programas
     public function list_programs() {

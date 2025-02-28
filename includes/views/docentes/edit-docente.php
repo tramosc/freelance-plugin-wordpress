@@ -21,7 +21,7 @@
 
         <div class="mb-3">
             <label for="url_perfil" class="form-label">Link del Perfil:</label>
-            <input type="text" class="form-control" name="url_perfil" id="url_perfil" value="<?php echo esc_attr($docente->url_perfil); ?>" required>
+            <input type="text" class="form-control" name="url_perfil" id="url_perfil" value="<?php echo esc_attr($docente->url_perfil); ?>">
         </div>
 
         <div class="mb-3">

@@ -67,6 +67,22 @@
                         <?php endif; ?>
                     </div>
 
+
+                    <!-- Imagen del Programa -->
+                    <div class="form-group mb-3">
+                        <label for="second_image_url">Segunda Imagen del Programa(para index - inicio)</label>
+                        <!-- Input de archivo para la nueva imagen -->
+                        <input type="file" name="second_image_url" id="second_image_url" />
+
+                        <!-- Mostrar la imagen actual si existe -->
+                        <?php if ($program->second_image_url) : ?>
+                        <p>Imagen actual:</p>
+                        <img src="<?php echo esc_url($program->second_image_url); ?>" alt="Imagen del 2do programa"
+                            style="max-width: 200px;">
+                        <!-- Opcionalmente, podrías agregar un botón para borrar la imagen si es necesario -->
+                        <?php endif; ?>
+                    </div>
+
                 </div>
                 <div class="col">
                     <!-- Docentes Asociados -->

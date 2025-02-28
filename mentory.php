@@ -47,6 +47,7 @@ function mentory_activate() {
         precio VARCHAR(255) NOT NULL,
         area_id INT(11) NOT NULL DEFAULT 0,
         image_url varchar(255) DEFAULT '' NOT NULL,
+        second_image_url varchar(255) DEFAULT '' NOT NULL,
         PRIMARY KEY (id)
     ) $charset_collate;";
 

@@ -2,7 +2,7 @@
 class Program {
     
     // Guardar un nuevo programa y sus relaciones con docentes
-    public function save_program($name, $slug, $area_id, $image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes = []) {
+    public function save_program($name, $slug, $area_id, $image_url, $second_image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes = []) {
         global $wpdb;
         
         // Asegurarse de que los parámetros obligatorios no estén vacíos
@@ -18,6 +18,7 @@ class Program {
                 'slug' => $slug,
                 'area_id' => $area_id,
                 'image_url' => $image_url,
+                'second_image_url' => $second_image_url,
                 'tipo_especializacion' => $tipo_especializacion,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
@@ -32,7 +33,7 @@ class Program {
                 'hora_fin' => $hora_fin,
                 'precio' => $precio,
             ),
-            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
         );
 
         // Obtener el ID del programa recién insertado
@@ -76,7 +77,7 @@ class Program {
     }
 
     // Actualizar un programa y sus relaciones con docentes
-    public function update_program($id, $name, $slug, $area_id, $image_url, $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes = []) {
+    public function update_program($id, $name, $slug, $area_id, $image_url , $second_image_url , $tipo_especializacion, $fecha_inicio, $fecha_fin, $link_video, $descripcion, $que_aprenderas, $nro_modulos, $nro_horas, $malla_curricular, $tipo_certificacion, $hora_inicio, $hora_fin, $precio, $docentes = []) {
         global $wpdb;
         
         // Actualizar el programa
@@ -87,6 +88,7 @@ class Program {
                 'slug' => $slug,
                 'area_id' => $area_id,
                 'image_url' => $image_url,
+                'second_image_url' => $second_image_url,
                 'tipo_especializacion' => $tipo_especializacion,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
@@ -102,7 +104,7 @@ class Program {
                 'precio' => $precio,
             ),
             array('id' => $id),
-            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'),
+            array('%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'),
             array('%d')
         );
 

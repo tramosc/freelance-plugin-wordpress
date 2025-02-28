@@ -65,6 +65,12 @@ $docentes = mentory_get_all_docentes();
                         <input type="file" name="program_image" id="program_image" class="form-control">
                     </div>
 
+                    <!-- Imagen del Programa -->
+                    <div class="form-group mb-4">
+                        <label for="second_image_url" class="form-label">Segunda Imagen del Programa(para index- inicio):</label>
+                        <input type="file" name="second_image_url" id="second_image_url" class="form-control">
+                    </div>
+
                 </div>
                 <div class="col">
                     <!-- Seleccionar Docentes -->
@@ -73,10 +79,13 @@ $docentes = mentory_get_all_docentes();
                         <select name="docentes[]" id="docentes" class="form-select" multiple required>
                             <?php foreach ($docentes as $docente): ?>
                             <option value="<?php echo esc_attr($docente->id); ?>">
-                                <?php echo esc_html($docente->nombre); ?>
+                                <?php echo esc_html($docente->nombre . ' ' . $docente->apellidos); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
+                        <small class="form-text text-muted">Mantén presionada la tecla CTRL (CMD en Mac) para
+                            seleccionar múltiples
+                            docentes.</small>
                         <div class="invalid-feedback">
                             Por favor, selecciona al menos un docente.
                         </div>
